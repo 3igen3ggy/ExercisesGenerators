@@ -11,28 +11,8 @@ const int TATRounder = 0;
 List<string> exercises = new List<string>();
 List<string> solutions = new List<string>();
 
-for (int i = 0; i < 100; i++)
-{
-    GenerateCalculateDA(exercises, solutions);
-    GenerateCalculateTA(exercises, solutions);
-    GenerateCalculateTASFromIAT(exercises, solutions);
-    GenerateCalculateTASFromTAT(exercises, solutions);
-}
-
-Console.WriteLine();
-
-for (int i = 1; i <= exercises.Count(); i++)
-{
-    Console.WriteLine(i + ":\t " + exercises[i - 1]);
-}
-
-Console.WriteLine();
-
-for (int i = 1; i <= exercises.Count(); i++)
-{
-    Console.WriteLine(i + ":\t " + solutions[i - 1]);
-}
-
+GenerateExercises(exercises, solutions, 210);
+PrintExercises(exercises, solutions);
 //PrintTests();
 
 static double CalculateDA(double PA, double TAT)
@@ -167,9 +147,20 @@ static double CalculateMach(double CAS, double PA)
 
     double qc = p0 * (Math.Pow(1.0 + (gamma - 1.0) / 2.0 * Math.Pow(CASM / a0, 2.0), gamma / (gamma - 1.0)) - 1.0);
 
-    double mach = Math.Sqrt((2.0 / (gamma - 1.0)) *
-                            (Math.Pow((qc / p) + 1.0, (gamma - 1.0) / gamma) - 1.0));
+    double mach = Math.Sqrt((2.0 / (gamma - 1.0)) *  (Math.Pow((qc / p) + 1.0, (gamma - 1.0) / gamma) - 1.0));
     return mach;
+}
+
+static void GenerateCalculateMach(List<string> exercises, List<string> solutions)
+{
+    var PA = GetRandom(0, 50000, -3);
+    var CAS = GetRandom(100, 900, -1);
+    var text = "Find Mach, given PA: " + PA + "ft, CAS: " + CAS + "kt";
+    exercises.Add(text);
+    Console.WriteLine(text);
+    var solution = "Mach: " + Rounder(CalculateMach(CAS, PA), 2);
+    solutions.Add(solution);
+    Console.WriteLine(solution);
 }
 
 static double CalculateTASFromIAT(double CAS, double PA, double IAT, double RC = 1)
@@ -244,6 +235,41 @@ static void GenerateCalculateTASFromTAT(List<string> exercises, List<string> sol
     var solution = "TAS: " + Rounder(CalculateTASFromTAT(PA, TAT, CAS), 0) + "kt";
     solutions.Add(solution);
     Console.WriteLine(solution);
+}
+
+static void GenerateExercises(List<string> exercises, List<string> solutions, int exercisesAmount)
+{
+    var i = 0;
+    while (i < exercisesAmount)
+    {
+        GenerateCalculateMach(exercises, solutions);
+        i++;
+        GenerateCalculateDA(exercises, solutions);
+        i++;
+        GenerateCalculateTA(exercises, solutions);
+        i++;
+        GenerateCalculateTASFromIAT(exercises, solutions);
+        i++;
+        GenerateCalculateTASFromTAT(exercises, solutions);
+        i++;
+    }
+}
+
+static void PrintExercises(List<string> exercises, List<string> solutions)
+{
+    Console.WriteLine();
+
+    for (int i = 1; i <= exercises.Count(); i++)
+    {
+        Console.WriteLine(i + ":\t " + exercises[i - 1]);
+    }
+
+    Console.WriteLine();
+
+    for (int i = 1; i <= exercises.Count(); i++)
+    {
+        Console.WriteLine(i + ":\t " + solutions[i - 1]);
+    }
 }
 
 static void PrintTests()
