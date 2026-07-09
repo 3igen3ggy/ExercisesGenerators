@@ -1,4 +1,6 @@
-﻿const double Kelvin = 273.15;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+
+const double Kelvin = 273.15;
 const int AbsoluteRounder = 3;
 const int ExactRounder = 0;
 const int DARounder = -1;
@@ -6,14 +8,17 @@ const int TARounder = -1;
 const int TASRounder = -1;
 const int TRRounder = 0;
 const int TATRounder = 0;
+const double RAD = Math.PI / 180.0;
+const double DEG = 180.0/ Math.PI;
 
 
 List<string> exercises = new List<string>();
 List<string> solutions = new List<string>();
 
-GenerateExercises(exercises, solutions, 210);
+GenerateExercises(exercises, solutions, 5);
 PrintExercises(exercises, solutions);
-//PrintTests();
+
+//PrintTestsB();
 
 static double CalculateDA(double PA, double TAT)
 {
@@ -237,20 +242,68 @@ static void GenerateCalculateTASFromTAT(List<string> exercises, List<string> sol
     Console.WriteLine(solution);
 }
 
+static double[] CalculateCrabMHGS(double TAS, double MC, double variation, double[] wind)
+{
+    var TC = Rev(MC + variation);
+    var diff = Rev(TC - wind[1]);
+    var diffRad = diff * RAD;
+    var crosswind = -wind[0] * Math.Sin(diffRad);
+    var headwind = -wind[0] * Math.Cos(diffRad);
+    var crab = Math.Atan(crosswind / TAS) * DEG;
+
+    if (diff < 0)
+    {
+        crab *= -1;
+    }
+
+    var MH = MC + crab;
+    var ETAS = TAS * Math.Cos(crab * RAD);
+    var GS = ETAS + headwind;
+
+    TC = Rounder(TC, 0);
+    headwind = Rounder(headwind, 0);
+    crosswind = Rounder(crosswind, 0);
+    crab = Rounder(crab, 0);
+    MH = Rounder(MH, 0);
+    ETAS = Rounder(ETAS, 0);
+    GS = Rounder(GS, 0);
+
+    return [TC, headwind, crosswind, crab, MH, ETAS, GS];
+}
+
+static void GenerateCalculateCrabMHGS(List<string> exercises, List<string> solutions)
+{
+    var TAS = GetRandom(100, 800, -1);
+    var MC = GetRandom(0, 360, 0);
+    var variation = GetRandom(0, 360, 0) - 180;
+    var windMag = GetRandom(0, 140, -1);
+    var windDir = GetRandom(0, 360, 0) - 180;
+    var text = "Find TC, HW, CW, Crab, MH, ETAS, GS, \n\tGiven TAS: " + TAS + ", MC: " + MC + "°, variation: " + variation + "°, windMag: " + windMag + "kt, windDir: " + windDir + "°";
+    exercises.Add(text);
+    Console.WriteLine(text);
+    var solutionArray = CalculateCrabMHGS(TAS, MC, variation, [windMag, windDir]);
+    var solution = "TC: " + solutionArray[0] + "°, HW: " + solutionArray[1] + ", CW: " + solutionArray[2] + ", crab: " + solutionArray[3] + "°, MH: " + solutionArray[4] + "°, ETAS: " + solutionArray[5] + ", GS: " + solutionArray[6];
+    solutions.Add(solution);
+    Console.WriteLine(solution);
+}
+
+
 static void GenerateExercises(List<string> exercises, List<string> solutions, int exercisesAmount)
 {
     var i = 0;
     while (i < exercisesAmount)
     {
-        GenerateCalculateMach(exercises, solutions);
-        i++;
-        GenerateCalculateDA(exercises, solutions);
-        i++;
-        GenerateCalculateTA(exercises, solutions);
-        i++;
-        GenerateCalculateTASFromIAT(exercises, solutions);
-        i++;
-        GenerateCalculateTASFromTAT(exercises, solutions);
+        //GenerateCalculateMach(exercises, solutions);
+        //i++;
+        //GenerateCalculateDA(exercises, solutions);
+        //i++;
+        //GenerateCalculateTA(exercises, solutions);
+        //i++;
+        //GenerateCalculateTASFromIAT(exercises, solutions);
+        //i++;
+        //GenerateCalculateTASFromTAT(exercises, solutions);
+        //i++;
+        GenerateCalculateCrabMHGS(exercises, solutions);
         i++;
     }
 }
@@ -266,13 +319,13 @@ static void PrintExercises(List<string> exercises, List<string> solutions)
 
     Console.WriteLine();
 
-    for (int i = 1; i <= exercises.Count(); i++)
+    for (int i = 1; i <= solutions.Count(); i++)
     {
         Console.WriteLine(i + ":\t " + solutions[i - 1]);
     }
 }
 
-static void PrintTests()
+static void PrintTestsA()
 {
     Console.WriteLine("#");
     Solved(CalculateDA(3000, 25), 5000, DARounder);
@@ -301,6 +354,15 @@ static void PrintTests()
     Solved(CalculateTASFromTAT(10000, -20, 188), 212, TATRounder);
 }
 
+static void PrintTestsB()
+{
+    Console.WriteLine("#");
+    SolvedArr(CalculateCrabMHGS(180, 140, -10, [40, 100]), [130, -35, -20, -6, 134, 179, 144], 0);
+    SolvedArr(CalculateCrabMHGS(310, 254, 6, [30, 240]), [260, -28, -10, -2, 252, 310, 282], 0);
+    SolvedArr(CalculateCrabMHGS(165, 130, -5, [20, 270]), [125, 16, 11, 4, 134, 165, 181], 0);
+    SolvedArr(CalculateCrabMHGS(130, 350, 11, [30, 290]), [1, -10, -28, -13, 337, 127, 117], 0);
+}
+
 static void Solved(double value, double expectedValue, int round)
 {
     var valueRounded = Rounder(value, round);
@@ -309,6 +371,23 @@ static void Solved(double value, double expectedValue, int round)
     var relative = expectedValueRounded - valueRounded;
     var absolute = Rounder(Math.Abs(relative) / expectedValueRounded * 100, AbsoluteRounder);
     Console.WriteLine("Exact: " + Rounder(value, ExactRounder) + ", \tVal: " + valueRounded + ", \texpVal: " + expectedValueRounded + ", \trel: " + relative + ", \tabs: " + absolute + "%");
+}
+
+static void SolvedArr(double[] value, double[] expectedValue, int round)
+{
+    var length = value.Length;
+    var expectedlength = expectedValue.Length;
+
+    if (length != expectedlength)
+    {
+        Console.WriteLine("Different lengths of arrays, valuesLength: " + length + ", expectedValuesLength: " + expectedlength);
+        return;
+    }
+
+    for (int i = 0; i < length; i++)
+    {
+        Solved(value[i], expectedValue[i], round);
+    }
 }
 
 static int GetRandom(int min, int max, int rounder)
@@ -322,6 +401,11 @@ static double Rounder(double a, int dec)
 {
     var pow = Math.Pow(10, dec);
     return Math.Round(a * pow) / pow;
+}
+
+static double Rev(double x)
+{
+    return x - Math.Floor(x / 360.0) * 360;
 }
 
 static double GenerateRC()
