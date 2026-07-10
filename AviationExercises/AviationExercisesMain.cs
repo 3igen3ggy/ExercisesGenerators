@@ -15,10 +15,10 @@ const double DEG = 180.0/ Math.PI;
 List<string> exercises = new List<string>();
 List<string> solutions = new List<string>();
 
-GenerateExercises(exercises, solutions, 5);
-PrintExercises(exercises, solutions);
+//GenerateExercises(exercises, solutions, 5);
+//PrintExercises(exercises, solutions);
 
-//PrintTestsB();
+PrintTestsB();
 
 static double CalculateDA(double PA, double TAT)
 {
@@ -245,10 +245,10 @@ static void GenerateCalculateTASFromTAT(List<string> exercises, List<string> sol
 static double[] CalculateCrabMHGS(double TAS, double MC, double variation, double[] wind)
 {
     var TC = Rev(MC + variation);
-    var diff = Rev(TC - wind[1]);
+    var diff = Rev(TC - wind[0]);
     var diffRad = diff * RAD;
-    var crosswind = -wind[0] * Math.Sin(diffRad);
-    var headwind = -wind[0] * Math.Cos(diffRad);
+    var crosswind = -wind[1] * Math.Sin(diffRad);
+    var headwind = -wind[1] * Math.Cos(diffRad);
     var crab = Math.Atan(crosswind / TAS) * DEG;
 
     if (diff < 0)
@@ -278,17 +278,43 @@ static void GenerateCalculateCrabMHGS(List<string> exercises, List<string> solut
     var variation = GetRandom(0, 360, 0) - 180;
     var windMag = GetRandom(0, 140, -1);
     var windDir = GetRandom(0, 360, 0) - 180;
-    var text = "Find TC, HW, CW, Crab, MH, ETAS, GS, \n\tGiven TAS: " + TAS + ", MC: " + MC + "°, variation: " + variation + "°, windMag: " + windMag + "kt, windDir: " + windDir + "°";
+    var text = "Find TC, HW, CW, Crab, MH, ETAS, GS, \n\tGiven TAS: " + TAS + ", MC: " + MC + "°, var: " + variation + "°, windDir: " + windDir + "°, windMag: " + windMag + "kt";
     exercises.Add(text);
     Console.WriteLine(text);
-    var solutionArray = CalculateCrabMHGS(TAS, MC, variation, [windMag, windDir]);
+    var solutionArray = CalculateCrabMHGS(TAS, MC, variation, [windDir, windMag]);
     var solution = "TC: " + solutionArray[0] + "°, HW: " + solutionArray[1] + ", CW: " + solutionArray[2] + ", crab: " + solutionArray[3] + "°, MH: " + solutionArray[4] + "°, ETAS: " + solutionArray[5] + ", GS: " + solutionArray[6];
     solutions.Add(solution);
     Console.WriteLine(solution);
 }
 
+static double[] CalculateWind(double TAS, double TC, double TH, double GS)
+{
+    var crab = TH - TC;
+    var ETAS = TAS * Math.Cos(crab * RAD);
+    var headwind = GS - ETAS;
+    var crosswind = TAS * Math.Tan(crab * RAD);
+    var windMag = Math.Sqrt(headwind * headwind + crosswind * crosswind);
+    var windDir = Rev(Math.Atan2(crosswind, -headwind) * DEG + TC);
+    //Console.WriteLine("Crab: " + crab + ", ETAS: " + ETAS + ", headwind: " + headwind + ", crosswind: " + crosswind + ", windMag: " + windMag + ", windDir: " + windDir);
+    return [windDir, windMag];
+}
 
-static void GenerateExercises(List<string> exercises, List<string> solutions, int exercisesAmount)
+static void GenerateCalculateWind(List<string> exercises, List<string> solutions)
+{
+    var TAS = GetRandom(100, 800, -1);
+    var TC = GetRandom(0, 360, 0);
+    var TH = TC + GetRandom(0, 180, 0) - 90;
+    var GS = TAS + GetRandom(0, 140, -1);
+    var text = "Find wind components Dir and Mag, given TAS: " + TAS + "kt, TC: " + TC + "°, TH: " + TH + "°, GS: " + GS + "kt";
+    Console.WriteLine(text);
+    var solutionArray = CalculateWind(TAS, TC, TH, GS);
+    var solution = "windDir: " + solutionArray[0] + "°, windMag: " + solutionArray[1] + "kt";
+    solutions.Add(solution);
+    Console.WriteLine(solution);
+}
+
+
+    static void GenerateExercises(List<string> exercises, List<string> solutions, int exercisesAmount)
 {
     var i = 0;
     while (i < exercisesAmount)
@@ -357,10 +383,15 @@ static void PrintTestsA()
 static void PrintTestsB()
 {
     Console.WriteLine("#");
-    SolvedArr(CalculateCrabMHGS(180, 140, -10, [40, 100]), [130, -35, -20, -6, 134, 179, 144], 0);
-    SolvedArr(CalculateCrabMHGS(310, 254, 6, [30, 240]), [260, -28, -10, -2, 252, 310, 282], 0);
-    SolvedArr(CalculateCrabMHGS(165, 130, -5, [20, 270]), [125, 16, 11, 4, 134, 165, 181], 0);
-    SolvedArr(CalculateCrabMHGS(130, 350, 11, [30, 290]), [1, -10, -28, -13, 337, 127, 117], 0);
+    SolvedArr(CalculateCrabMHGS(180, 140, -10, [100, 40]), [130, -35, -20, -6, 134, 179, 144], 0);
+    SolvedArr(CalculateCrabMHGS(310, 254, 6, [240, 30]), [260, -28, -10, -2, 252, 310, 282], 0);
+    SolvedArr(CalculateCrabMHGS(165, 130, -5, [270, 20]), [125, 16, 11, 4, 134, 165, 181], 0);
+    SolvedArr(CalculateCrabMHGS(130, 350, 11, [290, 30]), [1, -10, -28, -13, 337, 127, 117], 0);
+    Console.WriteLine("#");
+    SolvedArr(CalculateWind(180, 175, 160, 144), [118, 55], 0);
+    SolvedArr(CalculateWind(240, 106, 102, 220), [65, 26], 0);
+    SolvedArr(CalculateWind(130, 320, 309, 142), [200, 29], 0);
+    SolvedArr(CalculateWind(210, 164, 175, 222), [276, 43], 0);
 }
 
 static void Solved(double value, double expectedValue, int round)
