@@ -213,6 +213,41 @@ namespace AviationExercises
             return [windDir, windMag];
         }
 
+        public double[] CalculateTCGS(double TAS, double MH, double variation, double[] wind)
+        {
+            var precision = 1e-1;
+            var TH = MH + variation;
+            var TC = TH;
+            var newTC = TC;
+            var crab = 0.0;
+            var headwind = 0.0;
+            var i = 1;
+            Console.WriteLine("i: " + 0 + ", TC: " + TH);
+            do
+            {
+                TC = newTC;
+                var diff = CF.Rev(TC - wind[0]);
+                var diffRad = diff * RAD;
+                var crosswind = -wind[1] * Math.Sin(diffRad);
+                headwind = -wind[1] * Math.Cos(diffRad);
+                crab = Math.Asin(crosswind / TAS) * DEG;
+
+                if (diff < 0)
+                {
+                    crab *= -1;
+                }
+                newTC = TH - crab;
+                Console.WriteLine("i: " + i++ + ", TC: " + newTC);
+            } while (newTC - TC > precision);
+
+            TC = newTC;
+
+            var ETAS = TAS * Math.Cos(crab * RAD);
+            var GS = ETAS + headwind;
+
+            return [TC, GS];
+        }
+
         public void PrintTestsA()
         {
             Console.WriteLine("#");
@@ -244,16 +279,21 @@ namespace AviationExercises
 
         public void PrintTestsB()
         {
+            //Console.WriteLine("#");
+            //SolvedArr(CalculateCrabMHGS(180, 140, -10, [100, 40]), [130, -35, -20, -6, 134, 179, 144], 0);
+            //SolvedArr(CalculateCrabMHGS(310, 254, 6, [240, 30]), [260, -28, -10, -2, 252, 310, 282], 0);
+            //SolvedArr(CalculateCrabMHGS(165, 130, -5, [270, 20]), [125, 16, 11, 4, 134, 165, 181], 0);
+            //SolvedArr(CalculateCrabMHGS(130, 350, 11, [290, 30]), [1, -10, -28, -13, 337, 127, 117], 0);
+            //Console.WriteLine("#");
+            //SolvedArr(CalculateWind(180, 175, 160, 144), [118, 55], 0);
+            //SolvedArr(CalculateWind(240, 106, 102, 220), [65, 26], 0);
+            //SolvedArr(CalculateWind(130, 320, 309, 142), [200, 29], 0);
+            //SolvedArr(CalculateWind(210, 164, 175, 222), [276, 43], 0);
             Console.WriteLine("#");
-            SolvedArr(CalculateCrabMHGS(180, 140, -10, [100, 40]), [130, -35, -20, -6, 134, 179, 144], 0);
-            SolvedArr(CalculateCrabMHGS(310, 254, 6, [240, 30]), [260, -28, -10, -2, 252, 310, 282], 0);
-            SolvedArr(CalculateCrabMHGS(165, 130, -5, [270, 20]), [125, 16, 11, 4, 134, 165, 181], 0);
-            SolvedArr(CalculateCrabMHGS(130, 350, 11, [290, 30]), [1, -10, -28, -13, 337, 127, 117], 0);
-            Console.WriteLine("#");
-            SolvedArr(CalculateWind(180, 175, 160, 144), [118, 55], 0);
-            SolvedArr(CalculateWind(240, 106, 102, 220), [65, 26], 0);
-            SolvedArr(CalculateWind(130, 320, 309, 142), [200, 29], 0);
-            SolvedArr(CalculateWind(210, 164, 175, 222), [276, 43], 0);
+            SolvedArr(CalculateTCGS(156, 289, -7, [180, 40]), [295, 169], 0);
+            SolvedArr(CalculateTCGS(220, 62, 0, [270, 20]), [65, 236], 0);
+            SolvedArr(CalculateTCGS(133, 86, 0, [40, 35]), [99, 112], 0);
+            SolvedArr(CalculateTCGS(550, 315, 0, [0, 80]), [309, 496], 0);
         }
 
         void Solved(double value, double expectedValue, int round)

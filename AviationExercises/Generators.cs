@@ -23,6 +23,8 @@ namespace AviationExercises
                 i++;
                 GenerateCalculateWind(exercises, solutions);
                 i++;
+                GenerateCalculateTCGS(exercises, solutions);
+                i++;
             }
         }
 
@@ -38,8 +40,6 @@ namespace AviationExercises
             Console.WriteLine(solution);
         }
 
-
-
         void GenerateCalculateTA(List<string> exercises, List<string> solutions)
         {
             var PA = CF.GetRandom(0, 35000, -3);
@@ -54,8 +54,6 @@ namespace AviationExercises
             Console.WriteLine(solution);
         }
 
-
-
         void GenerateCalculateMach(List<string> exercises, List<string> solutions)
         {
             var PA = CF.GetRandom(0, 50000, -3);
@@ -67,8 +65,6 @@ namespace AviationExercises
             solutions.Add(solution);
             Console.WriteLine(solution);
         }
-
-
 
         void GenerateCalculateTASFromIAT(List<string> exercises, List<string> solutions)
         {
@@ -84,10 +80,6 @@ namespace AviationExercises
             Console.WriteLine(solution);
         }
 
-
-
-
-
         void GenerateCalculateTASFromTAT(List<string> exercises, List<string> solutions)
         {
             var PA = CF.GetRandom(0, 20000, -3);
@@ -101,15 +93,13 @@ namespace AviationExercises
             Console.WriteLine(solution);
         }
 
-
-
         void GenerateCalculateCrabMHGS(List<string> exercises, List<string> solutions)
         {
             var TAS = CF.GetRandom(100, 800, -1);
             var MC = CF.GetRandom(0, 360, 0);
             var variation = CF.GetRandom(0, 360, 0) - 180;
             var windMag = CF.GetRandom(0, 140, -1);
-            var windDir = CF.GetRandom(0, 360, 0) - 180;
+            var windDir = CF.GetRandom(0, 360, 0);
             var text = "Find TC, HW, CW, Crab, MH, ETAS, GS, \n\tGiven TAS: " + TAS + ", MC: " + MC + "°, var: " + variation + "°, windDir: " + windDir + "°, windMag: " + windMag + "kt";
             exercises.Add(text);
             Console.WriteLine(text);
@@ -119,18 +109,32 @@ namespace AviationExercises
             Console.WriteLine(solution);
         }
 
-
-
         void GenerateCalculateWind(List<string> exercises, List<string> solutions)
         {
             var TAS = CF.GetRandom(100, 800, -1);
             var TC = CF.GetRandom(0, 360, 0);
             var TH = TC + CF.GetRandom(0, 180, 0) - 90;
-            var GS = TAS + CF.GetRandom(0, 140, -1);
+            var GS = TAS + CF.GetRandom(0, 280, -1) - 140;
             var text = "Find wind components Dir and Mag, given TAS: " + TAS + "kt, TC: " + TC + "°, TH: " + TH + "°, GS: " + GS + "kt";
             Console.WriteLine(text);
             var solutionArray = calculators.CalculateWind(TAS, TC, TH, GS);
             var solution = "windDir: " + solutionArray[0] + "°, windMag: " + solutionArray[1] + "kt";
+            solutions.Add(solution);
+            Console.WriteLine(solution);
+        }
+
+        void GenerateCalculateTCGS(List<string> exercises, List<string> solutions)
+        {
+            var TAS = CF.GetRandom(100, 800, -1);
+            var MH = CF.GetRandom(0, 360, 0);
+            var variation = CF.GetRandom(0, 360, 0) - 180;
+            var windMag = CF.GetRandom(0, 140, -1);
+            var windDir = CF.GetRandom(0, 360, 0);
+
+            var text = "Find TC and GS, given TAS: " + TAS + "kt, MH: " + MH + "°, var: " + variation + "°, windDir: " + windDir + "°, windMag: " + windMag;
+            Console.WriteLine(text);
+            var solutionArray = calculators.CalculateTCGS(TAS, MH, variation, [windDir, windMag]);
+            var solution = "TC: " + solutionArray[0] + "°, GS: " + solutionArray[1] + "kt";
             solutions.Add(solution);
             Console.WriteLine(solution);
         }
