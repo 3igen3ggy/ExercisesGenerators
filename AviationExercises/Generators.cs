@@ -19,18 +19,18 @@ namespace AviationExercises
                 //i++;
                 //GenerateCalculateTASFromTAT(exercises, solutions);
                 //i++;
-                //GenerateCalculateCrabMHGS(exercises, solutions);
-                //i++;
-                //GenerateCalculateWind(exercises, solutions);
-                //i++;
-                //GenerateCalculateTCGS(exercises, solutions);
-                //i++;
+                GenerateCalculateCrabMHGS(exercises, solutions);
+                i++;
+                GenerateCalculateWind(exercises, solutions);
+                i++;
+                GenerateCalculateTCGS(exercises, solutions);
+                i++;
                 GenerateCalculateTHTAS(exercises, solutions);
                 i++;
-                //GenerateCalculateOffCourseCorrection(exercises, solutions);
-                //i++;
-                //GenerateCalculatRadiusOfAction(exercises, solutions);
-                //i++;
+                GenerateCalculateOffCourseCorrection(exercises, solutions);
+                i++;
+                GenerateCalculatRadiusOfAction(exercises, solutions);
+                i++;
             }
         }
 
@@ -106,7 +106,7 @@ namespace AviationExercises
             var variation = CF.GetRandom(0, 360, 0) - 180;
             var windMag = CF.GetRandom(0, 140, -1);
             var windDir = CF.GetRandom(0, 360, 0);
-            var text = "Find TC, HW, CW, Crab, MH, ETAS, GS, \n\tGiven TAS: " + TAS + ", MC: " + MC + "°, var: " + variation + "°, windDir: " + windDir + "°, windMag: " + windMag + "kt";
+            var text = "Find TC, HW, CW, Crab, MH, ETAS, GS, given TAS: " + TAS + ", MC: " + MC + "°, var: " + variation + "°, windDir: " + windDir + "°, windMag: " + windMag + "kt";
             exercises.Add(text);
             Console.WriteLine(text);
             var solutionArray = calculators.CalculateCrabMHGS(TAS, MC, variation, [windDir, windMag]);
