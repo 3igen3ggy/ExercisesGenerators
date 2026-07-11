@@ -104,7 +104,7 @@ namespace AviationExercises
             exercises.Add(text);
             Console.WriteLine(text);
             var solutionArray = calculators.CalculateCrabMHGS(TAS, MC, variation, [windDir, windMag]);
-            var solution = "TC: " + solutionArray[0] + "°, HW: " + solutionArray[1] + ", CW: " + solutionArray[2] + ", crab: " + solutionArray[3] + "°, MH: " + solutionArray[4] + "°, ETAS: " + solutionArray[5] + ", GS: " + solutionArray[6];
+            var solution = "TC: " + CF.Rounder(solutionArray[0], 0) + "°, HW: " + CF.Rounder(solutionArray[1], 0) + ", CW: " + CF.Rounder(solutionArray[2], 0) + ", crab: " + CF.Rounder(solutionArray[3], 0) + "°, MH: " + CF.Rounder(solutionArray[4], 0) + "°, ETAS: " + CF.Rounder(solutionArray[5], 0) + ", GS: " + CF.Rounder(solutionArray[6], 0);
             solutions.Add(solution);
             Console.WriteLine(solution);
         }
@@ -118,7 +118,7 @@ namespace AviationExercises
             var text = "Find wind components Dir and Mag, given TAS: " + TAS + "kt, TC: " + TC + "°, TH: " + TH + "°, GS: " + GS + "kt";
             Console.WriteLine(text);
             var solutionArray = calculators.CalculateWind(TAS, TC, TH, GS);
-            var solution = "windDir: " + solutionArray[0] + "°, windMag: " + solutionArray[1] + "kt";
+            var solution = "windDir: " + CF.Rounder(solutionArray[0], 0) + "°, windMag: " + CF.Rounder(solutionArray[1], 0) + "kt";
             solutions.Add(solution);
             Console.WriteLine(solution);
         }
@@ -134,7 +134,35 @@ namespace AviationExercises
             var text = "Find TC and GS, given TAS: " + TAS + "kt, MH: " + MH + "°, var: " + variation + "°, windDir: " + windDir + "°, windMag: " + windMag;
             Console.WriteLine(text);
             var solutionArray = calculators.CalculateTCGS(TAS, MH, variation, [windDir, windMag]);
-            var solution = "TC: " + solutionArray[0] + "°, GS: " + solutionArray[1] + "kt";
+            var solution = "TC: " + CF.Rounder(solutionArray[0], 0) + "°, GS: " + CF.Rounder(solutionArray[1], 0) + "kt";
+            solutions.Add(solution);
+            Console.WriteLine(solution);
+        }
+
+        void GenerateCalculateTHTAS(List<string> exercises, List<string> solutions)
+        {
+            var GS = CF.GetRandom(100, 800, -1);
+            var TC = CF.GetRandom(0, 360, 0);
+            var windMag = CF.GetRandom(0, 140, -1);
+            var windDir = CF.GetRandom(0, 360, 0);
+
+            var text = "Find TAS and TH, given GS: " + GS + "kt, TC: " + TC + "°, windDir: " + windDir + "°, windMag: " + windMag;
+            Console.WriteLine(text);
+            var solutionArray = calculators.CalculateTHTAS(GS, TC, [windDir, windMag]);
+            var solution = "TH: " + CF.Rounder(solutionArray[0], 0) + "°, TAS: " + CF.Rounder(solutionArray[1], 0) + "kt";
+            solutions.Add(solution);
+            Console.WriteLine(solution);
+        }
+
+        void GenerateCalculateOffCourseCorrection(List<string> exercises, List<string> solutions)
+        {
+            var flown = CF.GetRandom(0, 1000, 1);
+            var offCourse = CF.GetRandom(0, 1000, 1);
+            var toDest = CF.GetRandom(0, 1000, 1);
+
+            var text = "Find correction angle, given flown dist: " + flown + "nm, offCourse: " + offCourse + "nm, toDest: " + toDest + "nm";
+            Console.WriteLine(text);
+            var solution = "TH: " + CF.Rounder(calculators.CalculateOffCourseCorrection(flown, offCourse, toDest), 0) + "°";
             solutions.Add(solution);
             Console.WriteLine(solution);
         }

@@ -221,8 +221,8 @@ namespace AviationExercises
             var newTC = TC;
             var crab = 0.0;
             var headwind = 0.0;
-            var i = 1;
-            Console.WriteLine("i: " + 0 + ", TC: " + TH);
+            var i = 0;
+            Console.WriteLine("i: " + i++ + ", TC: " + TC);
             do
             {
                 TC = newTC;
@@ -246,6 +246,49 @@ namespace AviationExercises
             var GS = ETAS + headwind;
 
             return [TC, GS];
+        }
+
+        public double[] CalculateTHTAS(double GS, double TC, double[] wind)
+        {
+            var precision = 1e-1;
+
+            var ETAS = GS;
+            var TAS = ETAS;
+            var crab = 0.0;
+            var TH = TC;
+            var newTH = TH;
+            var i = 0;
+            Console.WriteLine("i: " + i++ + ", TH: " + TH);
+            do
+            {
+                TH = newTH;
+                var diff = CF.Rev(TC - wind[0]);
+                var diffRad = diff * RAD;
+                var crosswind = -wind[1] * Math.Sin(diffRad);
+                var headwind = -wind[1] * Math.Cos(diffRad);
+                ETAS = GS - headwind;
+
+                crab = Math.Asin(crosswind / ETAS) * DEG;
+
+                if (diff < 0)
+                {
+                    crab *= -1;
+                }
+                newTH = TC + crab;
+                TAS = ETAS / Math.Cos(crab * RAD);
+                Console.WriteLine("i: " + i++ + ", TH: " + newTH);
+            } while (newTH - TH > precision);
+
+            TH = newTH;
+            
+            return [TH, TAS];
+        }
+
+        public double CalculateOffCourseCorrection(double flown, double offCourse, double toDest)
+        {
+            var toParralel = Math.Asin(offCourse / flown) * DEG;
+            var finalCorrection = Math.Asin(offCourse / toDest) * DEG;
+            return toParralel + finalCorrection;
         }
 
         public void PrintTestsA()
@@ -289,11 +332,21 @@ namespace AviationExercises
             //SolvedArr(CalculateWind(240, 106, 102, 220), [65, 26], 0);
             //SolvedArr(CalculateWind(130, 320, 309, 142), [200, 29], 0);
             //SolvedArr(CalculateWind(210, 164, 175, 222), [276, 43], 0);
+            //Console.WriteLine("#");
+            //SolvedArr(CalculateTCGS(156, 289, -7, [180, 40]), [295, 169], 0);
+            //SolvedArr(CalculateTCGS(220, 62, 0, [270, 20]), [65, 236], 0);
+            //SolvedArr(CalculateTCGS(133, 86, 0, [40, 35]), [99, 112], 0);
+            //SolvedArr(CalculateTCGS(550, 315, 0, [0, 80]), [309, 496], 0);
             Console.WriteLine("#");
-            SolvedArr(CalculateTCGS(156, 289, -7, [180, 40]), [295, 169], 0);
-            SolvedArr(CalculateTCGS(220, 62, 0, [270, 20]), [65, 236], 0);
-            SolvedArr(CalculateTCGS(133, 86, 0, [40, 35]), [99, 112], 0);
-            SolvedArr(CalculateTCGS(550, 315, 0, [0, 80]), [309, 496], 0);
+            SolvedArr(CalculateTHTAS(166, 56, [120, 45]), [68, 190], 0);
+            SolvedArr(CalculateTHTAS(220, 58, [280, 30]), [53, 199], 0);
+            SolvedArr(CalculateTHTAS(570, 323, [80, 95]), [332, 534], 0);
+            SolvedArr(CalculateTHTAS(170, 60, [310, 40]), [46, 161], 0);
+            Console.WriteLine("#");
+            Solved(CalculateOffCourseCorrection(40, 5, 160), 9, 0);
+            Solved(CalculateOffCourseCorrection(82, 10, 140), 11, 0);
+            Solved(CalculateOffCourseCorrection(14, 2, 115), 9, 0);
+            Solved(CalculateOffCourseCorrection(56, 11, 100), 17, 0);
         }
 
         void Solved(double value, double expectedValue, int round)
