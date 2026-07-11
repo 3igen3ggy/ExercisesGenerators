@@ -19,12 +19,18 @@ namespace AviationExercises
                 //i++;
                 //GenerateCalculateTASFromTAT(exercises, solutions);
                 //i++;
-                GenerateCalculateCrabMHGS(exercises, solutions);
+                //GenerateCalculateCrabMHGS(exercises, solutions);
+                //i++;
+                //GenerateCalculateWind(exercises, solutions);
+                //i++;
+                //GenerateCalculateTCGS(exercises, solutions);
+                //i++;
+                GenerateCalculateTHTAS(exercises, solutions);
                 i++;
-                GenerateCalculateWind(exercises, solutions);
-                i++;
-                GenerateCalculateTCGS(exercises, solutions);
-                i++;
+                //GenerateCalculateOffCourseCorrection(exercises, solutions);
+                //i++;
+                //GenerateCalculatRadiusOfAction(exercises, solutions);
+                //i++;
             }
         }
 
@@ -116,6 +122,7 @@ namespace AviationExercises
             var TH = TC + CF.GetRandom(0, 180, 0) - 90;
             var GS = TAS + CF.GetRandom(0, 280, -1) - 140;
             var text = "Find wind components Dir and Mag, given TAS: " + TAS + "kt, TC: " + TC + "°, TH: " + TH + "°, GS: " + GS + "kt";
+            exercises.Add(text);
             Console.WriteLine(text);
             var solutionArray = calculators.CalculateWind(TAS, TC, TH, GS);
             var solution = "windDir: " + CF.Rounder(solutionArray[0], 0) + "°, windMag: " + CF.Rounder(solutionArray[1], 0) + "kt";
@@ -130,8 +137,8 @@ namespace AviationExercises
             var variation = CF.GetRandom(0, 360, 0) - 180;
             var windMag = CF.GetRandom(0, 140, -1);
             var windDir = CF.GetRandom(0, 360, 0);
-
             var text = "Find TC and GS, given TAS: " + TAS + "kt, MH: " + MH + "°, var: " + variation + "°, windDir: " + windDir + "°, windMag: " + windMag;
+            exercises.Add(text);
             Console.WriteLine(text);
             var solutionArray = calculators.CalculateTCGS(TAS, MH, variation, [windDir, windMag]);
             var solution = "TC: " + CF.Rounder(solutionArray[0], 0) + "°, GS: " + CF.Rounder(solutionArray[1], 0) + "kt";
@@ -145,8 +152,8 @@ namespace AviationExercises
             var TC = CF.GetRandom(0, 360, 0);
             var windMag = CF.GetRandom(0, 140, -1);
             var windDir = CF.GetRandom(0, 360, 0);
-
             var text = "Find TAS and TH, given GS: " + GS + "kt, TC: " + TC + "°, windDir: " + windDir + "°, windMag: " + windMag;
+            exercises.Add(text);
             Console.WriteLine(text);
             var solutionArray = calculators.CalculateTHTAS(GS, TC, [windDir, windMag]);
             var solution = "TH: " + CF.Rounder(solutionArray[0], 0) + "°, TAS: " + CF.Rounder(solutionArray[1], 0) + "kt";
@@ -157,14 +164,33 @@ namespace AviationExercises
         void GenerateCalculateOffCourseCorrection(List<string> exercises, List<string> solutions)
         {
             var flown = CF.GetRandom(0, 1000, 1);
-            var offCourse = CF.GetRandom(0, 1000, 1);
             var toDest = CF.GetRandom(0, 1000, 1);
-
+            var offCourse = 0;
+            do
+            {
+                offCourse = CF.GetRandom(0, 1000, 1);
+            } while (offCourse > flown || offCourse > toDest);
             var text = "Find correction angle, given flown dist: " + flown + "nm, offCourse: " + offCourse + "nm, toDest: " + toDest + "nm";
+            exercises.Add(text);
             Console.WriteLine(text);
             var solution = "TH: " + CF.Rounder(calculators.CalculateOffCourseCorrection(flown, offCourse, toDest), 0) + "°";
             solutions.Add(solution);
             Console.WriteLine(solution);
         }
+        void GenerateCalculatRadiusOfAction(List<string> exercises, List<string> solutions)
+        {
+            var TAS = CF.GetRandom(100, 800, -1);
+            var fuelTime = CF.GetRandom(1, 36, -1);
+            var TC = CF.GetRandom(0, 360, 0);
+            var windMag = CF.GetRandom(0, 140, -1);
+            var windDir = CF.GetRandom(0, 360, 0);
+            var text = "Find radius of action, given TAS: " + TAS + "kt, fuelTime: " + CF.HourToString(fuelTime) + ", TC: " + TC + "°, windDir: " + windDir + "°, windMag: " + windMag;
+            exercises.Add(text);
+            Console.WriteLine(text);
+            var solution = "Time to turn: " + CF.HourToString(calculators.CalculatRadiusOfAction(TAS, fuelTime, TC, [windDir, windMag]));
+            solutions.Add(solution);
+            Console.WriteLine(solution);
+        }
+        
     }
 }

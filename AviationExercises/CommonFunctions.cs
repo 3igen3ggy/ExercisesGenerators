@@ -27,6 +27,15 @@
             return (6 + random) / 10.0;
         }
 
+        public static string HourToString(double hour)
+        {
+            var h = (int) hour;
+            var min = (hour - h) * 60;
+            var m = (int) min;
+            var s = (int) ((min - m) * 60);
+            return h + ":" + m + ":" + s;
+        }
+
         public static void PrintExercises(List<string> exercises, List<string> solutions)
         {
             Console.WriteLine();

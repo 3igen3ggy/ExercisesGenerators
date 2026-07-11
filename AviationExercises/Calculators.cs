@@ -6,6 +6,7 @@ namespace AviationExercises
     {
         const int AbsoluteRounder = 3;
         const int ExactRounder = 0;
+        const int TimeRounder = 10;
         const int DARounder = -1;
         const int TARounder = -1;
         const int TASRounder = -1;
@@ -286,9 +287,21 @@ namespace AviationExercises
 
         public double CalculateOffCourseCorrection(double flown, double offCourse, double toDest)
         {
-            var toParralel = Math.Asin(offCourse / flown) * DEG;
+            var toParallel = Math.Asin(offCourse / flown) * DEG;
             var finalCorrection = Math.Asin(offCourse / toDest) * DEG;
-            return toParralel + finalCorrection;
+            return toParallel + finalCorrection;
+        }
+
+        public double CalculatRadiusOfAction(double TAS, double fuelTime, double TC, double[] wind)
+        {
+            var diff = CF.Rev(TC - wind[0]);
+            var diffRad = diff * RAD;
+            var headwind = -wind[1] * Math.Cos(diffRad);
+            var crosswind = -wind[1] * Math.Sin(diffRad);
+            var GSOut = TAS + headwind;
+            var GSBack = TAS - headwind;
+            var timeToTurn = fuelTime * GSBack / (2 * TAS);
+            return timeToTurn;
         }
 
         public void PrintTestsA()
@@ -347,16 +360,27 @@ namespace AviationExercises
             Solved(CalculateOffCourseCorrection(82, 10, 140), 11, 0);
             Solved(CalculateOffCourseCorrection(14, 2, 115), 9, 0);
             Solved(CalculateOffCourseCorrection(56, 11, 100), 17, 0);
+            Console.WriteLine("#");
+            Solved(CalculatRadiusOfAction(285, 3.5, 340, [35, 30]), 1.8668, 10, true);
         }
 
-        void Solved(double value, double expectedValue, int round)
+        void Solved(double value, double expectedValue, int round, bool compareTimes = false)
         {
             var valueRounded = CF.Rounder(value, round);
             var expectedValueRounded = CF.Rounder(expectedValue, round);
 
             var relative = expectedValueRounded - valueRounded;
             var absolute = CF.Rounder(Math.Abs(relative) / expectedValueRounded * 100, AbsoluteRounder);
-            Console.WriteLine("Exact: " + CF.Rounder(value, ExactRounder) + ", \tVal: " + valueRounded + ", \texpVal: " + expectedValueRounded + ", \trel: " + relative + ", \tabs: " + absolute + "%");
+            
+            if (compareTimes)
+            {
+                Console.WriteLine("Exact: " + CF.Rounder(value, TimeRounder) + ", \tVal: " + valueRounded + ", \texpVal: " + expectedValueRounded + ", \trel: " + relative + ", \tabs: " + absolute + "%");
+                Console.WriteLine("Exact: " + CF.HourToString(CF.Rounder(value, TimeRounder)) + ", \tVal: " + CF.HourToString(valueRounded) + ", \texpVal: " + CF.HourToString(expectedValueRounded));
+            }
+            else
+            {
+                Console.WriteLine("Exact: " + CF.Rounder(value, ExactRounder) + ", \tVal: " + valueRounded + ", \texpVal: " + expectedValueRounded + ", \trel: " + relative + ", \tabs: " + absolute + "%");
+            }
         }
 
         void SolvedArr(double[] value, double[] expectedValue, int round)
